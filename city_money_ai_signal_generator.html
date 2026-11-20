@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18">
+<title>CIT¥~ MON£¥💻 | AI Signal Generator</title>
+<style>
+:root{--bg:#080d18;--panel:#111b2d;--panel2:#0d1626;--line:#263650;--muted:#9aaac1;--text:#f4f7ff;--gold:#f4c45e;--green:#27d49a;--red:#ff687b;--blue:#79baff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1a3150 0,#080d18 60%);color:var(--text);font:15px/1.5 system-ui,Arial,sans-serif}
+main{max-width:1120px;margin:auto;padding:22px 15px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}
+.brand{font-size:clamp(22px,5vw,34px);font-weight:950;letter-spacing:.02em;color:var(--gold)}.sub,.muted{color:var(--muted)}.pill{border:1px solid #80652e;color:var(--gold);border-radius:30px;padding:6px 11px;font-size:11px;font-weight:800;letter-spacing:.08em}
+h2{font-size:17px;margin:0 0 12px}.small{font-size:12px;color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.card{background:linear-gradient(145deg,#14243a,#101a2a);border:1px solid var(--line);border-radius:15px;padding:16px;min-width:0}.label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}.value{font-size:25px;font-weight:850;margin-top:5px;overflow-wrap:anywhere}.gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.stack{display:grid;gap:14px}
+button,input,select,textarea{font:inherit;border-radius:9px;border:1px solid var(--line);padding:10px 11px;background:#091426;color:var(--text);max-width:100%}
+button{background:var(--gold);border:0;color:#241a08;font-weight:850;cursor:pointer}button.secondary{background:#1d3049;border:1px solid var(--line);color:var(--text)}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.field{display:grid;gap:5px;min-width:0}.field label{font-size:12px;color:var(--muted)}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+input[type=file]{width:100%}textarea{width:100%;min-height:100px;resize:vertical}.notice{background:#2b2112;border:1px solid #725322;color:#f6dca7;padding:12px;border-radius:11px;font-size:12px}
+.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:640px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);font-size:13px}th{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.signal{border:1px solid var(--line);border-radius:12px;background:#0a1424;padding:14px}.signalhead{display:flex;justify-content:space-between;gap:10px;align-items:center}.signalword{font-size:28px;font-weight:950}.tag{font-size:11px;padding:4px 8px;border-radius:30px;background:#1b2c43;color:var(--blue)}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.level{background:#0a1424;border:1px solid var(--line);border-radius:11px;padding:11px}.level b{display:block;color:var(--gold)}.level span{font-size:12px;color:var(--muted)}
+footer{margin-top:20px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:11px}
+@media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.value{font-size:22px}}
+@media(max-width:420px){.levels{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header class="top">
+ <div><div class="brand">CIT¥~ MON£¥💻</div><div class="sub">AI SIGNAL GENERATOR • VIP TRADING DASHBOARD</div></div>
+ <div class="pill" id="modePill">WAITING FOR CANDLE DATA</div>
+</header>
+
+<section class="cards">
+ <div class="card"><div class="label">Selected market</div><div class="value" id="marketStat">—</div><div class="small">Choose a market below</div></div>
+ <div class="card"><div class="label">Latest signal</div><div class="value gold" id="signalStat">WAIT</div><div class="small" id="signalReason">No candle data analyzed</div></div>
+ <div class="card"><div class="label">Candles loaded</div><div class="value blue" id="candleStat">0</div><div class="small">OHLC rows available</div></div>
+ <div class="card"><div class="label">Last candle time</div><div class="value" style="font-size:17px" id="timeStat">—</div><div class="small">From your imported data</div></div>
+</section>
+
+<div class="layout">
+<div class="stack">
+ <section class="card">
+  <h2>Signal controls</h2>
+  <div class="formgrid">
+   <div class="field"><label for="pair">Market / currency pair</label>
+    <select id="pair">
+     <optgroup label="IQ Option OTC (select only if your file contains these prices)">
+      <option>EUR/USD OTC</option><option>GBP/USD OTC</option><option>USD/JPY OTC</option><option>EUR/JPY OTC</option><option>GBP/JPY OTC</option><option>AUD/USD OTC</option><option>USD/CAD OTC</option><option>USD/CHF OTC</option><option>NZD/USD OTC</option>
+     </optgroup>
+     <optgroup label="Regular Forex">
+      <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>EUR/JPY</option><option>GBP/JPY</option><option>EUR/GBP</option><option>AUD/USD</option><option>USD/CAD</option><option>USD/CHF</option><option>NZD/USD</option><option>AUD/JPY</option><option>EUR/AUD</option><option>EUR/CHF</option><option>GBP/CHF</option><option>GBP/AUD</option><option>CAD/JPY</option><option>CHF/JPY</option><option>NZD/JPY</option><option>XAU/USD</option>
+     </optgroup>
+    </select>
+   </div>
+   <div class="field"><label for="expiry">Signal expiry (minutes)</label><select id="expiry"><option>1</option><option>2</option><option selected>5</option><option>15</option><option>30</option><option>60</option></select></div>
+   <div class="field"><label for="smaFast">Fast SMA</label><input id="smaFast" type="number" min="2" max="100" value="9"></div>
+   <div class="field"><label for="smaSlow">Slow SMA</label><input id="smaSlow" type="number" min="3" max="200" value="21"></div>
+   <div class="field"><label for="rsiPeriod">RSI period</label><input id="rsiPeriod" type="number" min="2" max="50" value="14"></div>
+   <div class="field"><label for="threshold">RSI confirmation range</label><select id="threshold"><option value="balanced" selected>Balanced (BUY 50–68 / SELL 32–50)</option><option value="strict">Strict (BUY 52–65 / SELL 35–48)</option></select></div>
+  </div>
+  <div class="row" style="margin-top:13px"><button id="analyze">Analyze candles</button><button class="secondary" id="clear">Clear signals</button></div>
+  <p class="small">The engine checks SMA direction and RSI confirmation. It outputs WAIT when the data is insufficient or the rules do not agree.</p>
+ </section>
+
+ <section class="card">
+  <h2>Import candle data (CSV)</h2>
+  <p class="small">Upload a CSV containing real candle rows. Required columns: <b>time,pair,open,high,low,close</b>. The pair column must match the selected market name. For OTC, use prices exported or copied from the IQ Option OTC chart.</p>
+  <div class="field"><label for="csvFile">Choose CSV file</label><input id="csvFile" type="file" accept=".csv,text/csv"></div>
+  <div class="row" style="margin-top:10px"><button id="loadCsv">Load candle CSV</button><button class="secondary" id="downloadTemplate">Download CSV template</button></div>
+  <div class="notice" style="margin-top:12px">No live price connection is active in this version. Imported candles are analyzed automatically when you press Analyze. A real-time feed/API is required for continuous automatic updates; this app will never invent market prices.</div>
+ </section>
+
+ <section class="card">
+  <h2>Latest signal</h2>
+  <div class="signal">
+   <div class="signalhead"><div><div class="small">CURRENT MARKET</div><div id="signalPair" style="font-size:20px;font-weight:850">—</div></div><span class="tag" id="signalTag">NO DATA</span></div>
+   <div class="signalword gold" id="signalDirection">WAIT</div>
+   <div class="small" id="signalDetail">Import candle data, then analyze.</div>
+   <div class="row" style="margin-top:10px"><span class="tag" id="smaDetail">SMA: —</span><span class="tag" id="rsiDetail">RSI: —</span><span class="tag" id="expiryDetail">Expiry: —</span></div>
+  </div>
+ </section>
+
+ <section class="card">
+  <h2>Signal history</h2>
+  <div class="tablewrap"><table><thead><tr><th>Generated</th><th>Market</th><th>Signal</th><th>Close</th><th>RSI</th><th>Expiry</th><th>Type</th></tr></thead><tbody id="history"><tr><td colspan="7" class="muted">No signals yet.</td></tr></tbody></table></div>
+ </section>
+</div>
+
+<div class="stack">
+ <section class="card">
+  <h2>Martingale reference (manual only)</h2>
+  <p class="small">For tracking only. The system does not place trades or automatically increase stakes.</p>
+  <div class="field"><label for="baseStake">Base stake (your account currency)</label><input id="baseStake" type="number" min="0" step="0.01" value="100"></div>
+  <div class="levels" style="margin-top:11px">
+   <div class="level"><b>MG1 · 1×</b><div class="value" id="mg1" style="font-size:19px">100</div><span>First entry</span></div>
+   <div class="level"><b>MG2 · 2×</b><div class="value" id="mg2" style="font-size:19px">200</div><span>Second level</span></div>
+   <div class="level"><b>MG3 · 4×</b><div class="value" id="mg3" style="font-size:19px">400</div><span>Final level</span></div>
+  </div>
+  <div class="notice" style="margin-top:12px">Martingale can multiply losses quickly. A 1×, 2×, 4× sequence risks 7× the base stake in total if all three attempts lose. Set a hard loss limit; never treat recovery as guaranteed.</div>
+ </section>
+
+ <section class="card">
+  <h2>How to format your CSV</h2>
+  <textarea readonly>time,pair,open,high,low,close
+2026-11-20 12:00,EUR/USD,1.1500,1.1510,1.1490,1.1505
+2026-11-20 12:05,EUR/USD,1.1505,1.1520,1.1500,1.1515</textarea>
+  <p class="small">Example rows above only show the format; they are not live prices and are not included as trading data.</p>
+ </section>
+
+ <section class="card">
+  <h2>How the signal rules work</h2>
+  <ul class="small" style="padding-left:18px">
+   <li><b>BUY:</b> fast SMA above slow SMA, latest close above fast SMA, and RSI confirms upward momentum.</li>
+   <li><b>SELL:</b> fast SMA below slow SMA, latest close below fast SMA, and RSI confirms downward momentum.</li>
+   <li><b>WAIT:</b> rules conflict, data is insufficient, or RSI is outside the confirmation range.</li>
+  </ul>
+  <p class="small">This is a technical-indicator rule set, not a prediction guarantee. Test on historical/demo data before relying on it.</p>
+ </section>
+</div>
+</div>
+<footer>© <span id="year"></span> CIT¥~ MON£¥💻 • Educational signal-analysis tool. Not affiliated with IQ Option. No broker connection, trade execution, or guaranteed returns.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let candles=[],history=[];
+const fmt=n=>Number.isFinite(n)?n.toFixed(5):'—';
+function updateStake(){const b=Math.max(0,Number($('baseStake').value)||0);$('mg1').textContent=b.toFixed(2);$('mg2').textContent=(b*2).toFixed(2);$('mg3').textContent=(b*4).toFixed(2)}
+$('baseStake').addEventListener('input',updateStake);updateStake();
+$('pair').addEventListener('change',()=>{$('marketStat').textContent=$('pair').value;});
+$('marketStat').textContent=$('pair').value;
+function parseCSV(text){
+ const lines=text.trim().split(/\r?\n/).filter(Boolean);if(lines.length<2)throw Error('CSV needs a header and at least one candle row.');
+ const headers=lines.shift().split(',').map(x=>x.trim().toLowerCase());
+ const idx=name=>headers.indexOf(name);
+ for(const h of ['time','pair','open','high','low','close'])if(idx(h)<0)throw Error('Missing required CSV column: '+h);
+ return lines.map((line,i)=>{const c=line.split(',');const row={time:c[idx('time')]?.trim(),pair:c[idx('pair')]?.trim(),open:Number(c[idx('open')]),high:Number(c[idx('high')]),low:Number(c[idx('low')]),close:Number(c[idx('close')])};if(!row.pair||![row.open,row.high,row.low,row.close].every(Number.isFinite))throw Error('Invalid price on CSV row '+(i+2));return row;});
+}
+function sma(vals,p){if(vals.length<p)return NaN;return vals.slice(-p).reduce((a,b)=>a+b,0)/p}
+function rsi(vals,p){if(vals.length<=p)return NaN;let gains=0,losses=0;for(let i=vals.length-p;i<vals.length;i++){const d=vals[i]-vals[i-1];if(d>0)gains+=d;else losses-=d;}const ag=gains/p,al=losses/p;if(al===0)return 100;return 100-(100/(1+ag/al))}
+function analyze(){
+ const pair=$('pair').value;const data=candles.filter(c=>c.pair.toUpperCase()===pair.toUpperCase()).sort((a,b)=>String(a.time).localeCompare(String(b.time)));
+ $('marketStat').textContent=pair;$('candleStat').textContent=String(data.length);
+ if(data.length){$('timeStat').textContent=data[data.length-1].time;}
+ if(data.length<3){renderSignal('WAIT','Not enough matching candles. Import more real candle rows.','NO DATA',NaN,NaN,NaN);return}
+ const closes=data.map(c=>c.close),fp=Math.max(2,Number($('smaFast').value)||9),sp=Math.max(fp+1,Number($('smaSlow').value)||21),rp=Math.max(2,Number($('rsiPeriod').value)||14);
+ const fast=sma(closes,fp),slow=sma(closes,sp),rv=rsi(closes,rp),last=closes.at(-1);
+ if(!Number.isFinite(fast)||!Number.isFinite(slow)||!Number.isFinite(rv)){renderSignal('WAIT','Need at least '+Math.max(sp,rp+1)+' candles for these indicator settings.','INSUFFICIENT DATA',fast,slow,rv);return}
+ const strict=$('threshold').value==='strict';let dir='WAIT',reason='Indicators do not fully agree.';
+ if(fast>slow&&last>fast&&rv>=(strict?52:50)&&rv<=(strict?65:68)){dir='BUY';reason='Fast SMA is above slow SMA; close and RSI confirm upward momentum.'}
+ else if(fast<slow&&last<fast&&rv>=(strict?35:32)&&rv<=(strict?48:50)){dir='SELL';reason='Fast SMA is below slow SMA; close and RSI confirm downward momentum.'}
+ renderSignal(dir,reason,'ANALYZED',fast,slow,rv);
+ if(dir!=='WAIT'){
+  const item={time:new Date().toLocaleString(),pair,dir,close:last,rsi:rv,expiry:$('expiry').value};
+  history.unshift(item);history=history.slice(0,100);renderHistory();
+ }
+}
+function renderSignal(dir,reason,tag,fast,slow,rv){
+ $('signalStat').textContent=dir;$('signalStat').className='value '+(dir==='BUY'?'green':dir==='SELL'?'red':'gold');
+ $('signalReason').textContent=reason;$('signalPair').textContent=$('pair').value;
+ $('signalDirection').textContent=dir;$('signalDirection').className='signalword '+(dir==='BUY'?'green':dir==='SELL'?'red':'gold');
+ $('signalTag').textContent=tag;$('signalDetail').textContent=reason;
+ $('smaDetail').textContent='SMA '+$('smaFast').value+'/'+$('smaSlow').value+': '+(Number.isFinite(fast)&&Number.isFinite(slow)?(fast>slow?'BULLISH':fast<slow?'BEARISH':'FLAT'):'—');
+ $('rsiDetail').textContent='RSI: '+(Number.isFinite(rv)?rv.toFixed(1):'—');$('expiryDetail').textContent='Expiry: '+$('expiry').value+' min';
+ $('modePill').textContent=tag==='ANALYZED'?'CANDLE ANALYSIS COMPLETE':'WAITING FOR CANDLE DATA';
+}
+function renderHistory(){
+ const body=$('history');body.innerHTML='';
+ if(!history.length){body.innerHTML='<tr><td colspan="7" class="muted">No signals yet.</td></tr>';return}
+ for(const h of history){const tr=document.createElement('tr');[h.time,h.pair,h.dir,fmt(h.close),h.rsi.toFixed(1),h.expiry+' min','RULE-BASED'].forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;if(i===2)td.className=h.dir==='BUY'?'green':'red';tr.appendChild(td)});body.appendChild(tr)}
+}
+$('loadCsv').onclick=()=>{const f=$('csvFile').files[0];if(!f){alert('Choose a CSV file first.');return}const reader=new FileReader();reader.onload=()=>{try{const incoming=parseCSV(String(reader.result));candles=incoming;$('candleStat').textContent=String(candles.length);$('modePill').textContent='CANDLE DATA LOADED';analyze();}catch(e){alert(e.message)}};reader.readAsText(f)};
+$('analyze').onclick=analyze;
+$('clear').onclick=()=>{history=[];renderHistory();renderSignal('WAIT','Signal history cleared.','WAITING',NaN,NaN,NaN)};
+$('downloadTemplate').onclick=()=>{const csv='time,pair,open,high,low,close\n';const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='city_money_candle_template.csv';a.click();URL.revokeObjectURL(a.href)};
+$('year').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
